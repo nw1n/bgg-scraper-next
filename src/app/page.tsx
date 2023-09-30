@@ -52,11 +52,15 @@ function buildUrl(gameId, pageNumber) {
 }
 
 export default function Home() {
+  const defaultGameId = window.location.hash
+    ? window.location.hash.replace('#', '')
+    : defaultParams.objectid
+
   const [allData, setAllData] = useState<LocatedUser[]>([])
   // const [currentPageNumber, setCurrentPageNumber] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [locationInputValue, setLocationInputValue] = useState('Switzerland')
-  const [gameIdInputValue, setGameIdInputValue] = useState('1066')
+  const [gameIdInputValue, setGameIdInputValue] = useState(defaultGameId)
   const [filteredData, setFilteredData] = useState<LocatedUser[]>([])
   const [isChecked, setIsChecked] = useState(false)
   const [isGreenButtonActive, setIsGreenButtonActive] = useState(false)
@@ -126,6 +130,7 @@ export default function Home() {
   }
 
   async function fetchAllData() {
+    window.location.hash = '#' + gameIdInputValue
     timesFailed = 0
     currentPageNumber = 1
     myDataStore = []
