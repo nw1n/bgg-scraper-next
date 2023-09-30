@@ -26,15 +26,3 @@
   transition: background-color 0;
   background-color: #44aa44;
 }
-
-
-/*
-.green-button:not(:hover) {
-  transition: all 2000ms;
-  background-color: white;
-}
-.green-button:hover {
-  transition: all 0;
-  background-color: green;
-}
-*/

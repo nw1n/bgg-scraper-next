@@ -55,9 +55,8 @@ export default function Home() {
   const [allData, setAllData] = useState<LocatedUser[]>([])
   // const [currentPageNumber, setCurrentPageNumber] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
-  const [gameId, setGameId] = useState(136955)
   const [locationInputValue, setLocationInputValue] = useState('Switzerland')
-  const [gameIdInputValue, setGameIdInputValue] = useState('136955')
+  const [gameIdInputValue, setGameIdInputValue] = useState('1066')
   const [filteredData, setFilteredData] = useState<LocatedUser[]>([])
   const [isChecked, setIsChecked] = useState(false)
   const [isGreenButtonActive, setIsGreenButtonActive] = useState(false)
@@ -92,14 +91,16 @@ export default function Home() {
   }
 
   async function fetchPage() {
-    if (timesFailed >= 10) {
+    if (timesFailed >= 8) {
       console.log('too many fails, stopping')
       setIsLoading(false)
       return
     }
     try {
       console.log('fetching page: ' + currentPageNumber)
-      const response = await fetch(buildUrl(gameId, currentPageNumber))
+      const response = await fetch(
+        buildUrl(gameIdInputValue, currentPageNumber),
+      )
       const respData = await response.json()
       if (respData && respData.items.length > 0) {
         handleGreenButtonBlink()
@@ -107,7 +108,7 @@ export default function Home() {
         setAllData(myDataStore)
         currentPageNumber = currentPageNumber + 1
         timesFailed = 0
-        await wait(2000)
+        await wait(0)
         fetchPage()
       } else {
         timesFailed++
@@ -125,6 +126,9 @@ export default function Home() {
   }
 
   async function fetchAllData() {
+    timesFailed = 0
+    currentPageNumber = 1
+    myDataStore = []
     setIsLoading(true)
 
     await fetchPage()
@@ -171,7 +175,8 @@ export default function Home() {
           className={
             isGreenButtonActive
               ? 'green-button green-button--active'
-              : 'green-button green-button--non-active'
+              : 'green-button green-button--non-active' +
+                (timesFailed > 0 ? ' green-button--red' : '')
           }
         ></span>
         <ul>
