@@ -60,6 +60,7 @@ export default function Home() {
   const [gameIdInputValue, setGameIdInputValue] = useState('136955')
   const [filteredData, setFilteredData] = useState<LocatedUser[]>([])
   const [isChecked, setIsChecked] = useState(false)
+  const [isGreenButtonActive, setIsGreenButtonActive] = useState(false)
 
   function handleCheckboxChange(event: React.ChangeEvent<HTMLInputElement>) {
     setIsChecked(event.target.checked)
@@ -83,6 +84,13 @@ export default function Home() {
     setGameIdInputValue(event.target.value)
   }
 
+  function handleGreenButtonBlink() {
+    setIsGreenButtonActive(true)
+    setTimeout(() => {
+      setIsGreenButtonActive(false)
+    }, 20)
+  }
+
   async function fetchPage() {
     if (timesFailed >= 10) {
       console.log('too many fails, stopping')
@@ -94,11 +102,12 @@ export default function Home() {
       const response = await fetch(buildUrl(gameId, currentPageNumber))
       const respData = await response.json()
       if (respData && respData.items.length > 0) {
+        handleGreenButtonBlink()
         myDataStore = [...myDataStore, ...respData.items]
         setAllData(myDataStore)
         currentPageNumber = currentPageNumber + 1
         timesFailed = 0
-        await wait(0)
+        await wait(2000)
         fetchPage()
       } else {
         timesFailed++
@@ -158,6 +167,13 @@ export default function Home() {
         <button ref={buttonRef} onClick={fetchAllData} disabled={isLoading}>
           {isLoading ? 'Fetching Data...' : 'Fetch Data'}
         </button>
+        <span
+          className={
+            isGreenButtonActive
+              ? 'green-button green-button--active'
+              : 'green-button green-button--non-active'
+          }
+        ></span>
         <ul>
           {filteredData.map((item: LocatedUser) => (
             <li key={item.user.username} style={{ marginTop: '10px' }}>
