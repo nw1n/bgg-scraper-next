@@ -56,8 +56,14 @@ export default function Home() {
   // const [currentPageNumber, setCurrentPageNumber] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [gameId, setGameId] = useState(136955)
-  const [inputValue, setInputValue] = useState('Switzerland')
+  const [locationInputValue, setLocationInputValue] = useState('Switzerland')
+  const [gameIdInputValue, setGameIdInputValue] = useState('136955')
   const [filteredData, setFilteredData] = useState<LocatedUser[]>([])
+  const [isChecked, setIsChecked] = useState(false)
+
+  function handleCheckboxChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setIsChecked(event.target.checked)
+  }
 
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -67,12 +73,18 @@ export default function Home() {
   //   // }
   // }, [])
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setInputValue(event.target.value)
+  function handleLocationInputChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    setLocationInputValue(event.target.value)
+  }
+
+  function handleGameIdInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setGameIdInputValue(event.target.value)
   }
 
   async function fetchPage() {
-    if (timesFailed > 10) {
+    if (timesFailed >= 10) {
       console.log('too many fails, stopping')
       setIsLoading(false)
       return
@@ -110,19 +122,38 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const newFilteredData = allData.filter((item: LocatedUser) => {
-      const location = `${item.user.country} ${item.user.city}`
-      return location.toLowerCase().includes(inputValue.toLowerCase())
-    })
-    setFilteredData(newFilteredData)
-  }, [allData, inputValue])
+    if (isChecked) {
+      const newFilteredData = allData.filter((item: LocatedUser) => {
+        const location = `${item.user.country} ${item.user.city}`
+        return location.toLowerCase().includes(locationInputValue.toLowerCase())
+      })
+      setFilteredData(newFilteredData.reverse())
+    } else {
+      setFilteredData(allData.reverse())
+    }
+  }, [allData, locationInputValue, isChecked])
 
   return (
     <div className="container">
       <main>
         <h1>BGG Game owner Scraper</h1>
         <p>Enter the Location to filter</p>
-        <input type="text" value={inputValue} onChange={handleInputChange} />
+        <input
+          type="checkbox"
+          checked={isChecked}
+          onChange={handleCheckboxChange}
+        />
+        <input
+          type="text"
+          value={locationInputValue}
+          onChange={handleLocationInputChange}
+        />
+        <p>Enter the Game Id</p>
+        <input
+          type="text"
+          value={gameIdInputValue}
+          onChange={handleGameIdInputChange}
+        />
         <p>Click the button to start fetching data</p>
         <button ref={buttonRef} onClick={fetchAllData} disabled={isLoading}>
           {isLoading ? 'Fetching Data...' : 'Fetch Data'}
