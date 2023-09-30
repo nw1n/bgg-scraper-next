@@ -13,10 +13,6 @@ interface LocatedUser {
   user: User
 }
 
-function getUserUrl(userName) {
-  return `https://boardgamegeek.com/user/${userName}`
-}
-
 // async wait function
 async function wait(ms) {
   return new Promise((resolve) => {
@@ -24,23 +20,24 @@ async function wait(ms) {
   })
 }
 
+const urlExample =
+  'https://api.geekdo.com/api/collections?ajax=1&objectid=14105&objecttype=thing&oneperuser=1&pageid=3' +
+  '&require_review=true&showcount=100&sort=review_tstamp&status=own'
+const defaultParams = {
+  ajax: 1,
+  objectid: 14105,
+  objecttype: 'thing',
+  oneperuser: 1,
+  pageid: 3,
+  require_review: true,
+  showcount: 50,
+  sort: 'review_tstamp',
+  status: 'own',
+}
+
 export default function Home() {
   const [data, setData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-
-  const urlExample =
-    'https://api.geekdo.com/api/collections?ajax=1&objectid=14105&objecttype=thing&oneperuser=1&pageid=3&require_review=true&showcount=100&sort=review_tstamp&status=own'
-  const defaultParams = {
-    ajax: 1,
-    objectid: 14105,
-    objecttype: 'thing',
-    oneperuser: 1,
-    pageid: 3,
-    require_review: true,
-    showcount: 50,
-    sort: 'review_tstamp',
-    status: 'own',
-  }
 
   const buttonRef = useRef<HTMLButtonElement>(null)
 
@@ -50,7 +47,7 @@ export default function Home() {
     }
   }, [])
 
-  const fetchData = async () => {
+  async function fetchData() {
     setIsLoading(true)
 
     try {
@@ -79,7 +76,10 @@ export default function Home() {
               <div>
                 {item.user.country} --- {item.user.city}{' '}
               </div>
-              <a target="_blank" href={getUserUrl(item.user.username)}>
+              <a
+                target="_blank"
+                href={`https://boardgamegeek.com/user/${item.user.username}`}
+              >
                 {item.user.username}
               </a>
             </li>
