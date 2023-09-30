@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browser Version BGG Scraper</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>BGG Scraper</h1>
+    <p><strong>Game ID: {{ gameId }}</strong></p>
+    <ul>
+        <!-- Use v-for to iterate over the array and render each item -->
+        <li v-for="item in items" :key="item.user.username" v-show="item.user.country === 'Switzerland'" style="margin-bottom: 10px;">
+          <div>{{ item.user.country }} --- {{ item.user.city }}</div>
+          <div>
+            <a target="_blank" :href="'https://boardgamegeek.com/user/' + item.user.username">
+              {{ item.user.username }}
+            </a>
+            </div>
+        </li>
+    </ul>
+  </div>
+  <script>
+    const allData = [];
+    const baseBggUrl = 'https://api.geekdo.com/api/collections?';
+    const urlExample = 'https://api.geekdo.com/api/collections?ajax=1&objectid=14105&objecttype=thing&oneperuser=1&pageid=3&require_review=true&showcount=100&sort=review_tstamp&status=own';
+    const defaultParams = {
+      ajax: 1,
+      objectid: 14105,
+      objecttype: 'thing',
+      oneperuser: 1,
+      pageid: 3,
+      require_review: true,
+      showcount: 50,
+      sort: 'review_tstamp',
+      status: 'own'
+    }
+    let currentPageId = 1;
+    const gameId = window.location.hash ? window.location.hash.replace('#', '') : defaultParams.objectid;
+
+    // Initialize a Vue instance
+    new Vue({
+        el: '#app',
+        data: {
+            // Define an array of items to render
+            items: allData,
+            gameId: gameId,
+        }
+    });
+
+    main();
+    async function main() {
+      const myQueryParams = Object.assign({}, defaultParams, {
+        objectid: gameId,
+        pageid: currentPageId
+      });
+      const myUrl = `${baseBggUrl}${Object.keys(myQueryParams).map(key => `${key}=${myQueryParams[key]}`).join('&')}`;
+      console.log(myUrl);
+      const response = await fetch(myUrl);
+      const data = await response.json();
+      console.log(data);
+      if(data && data.items && data.items.length) {
+        allData.push(...data.items);
+        if(data.items.length === 50) {
+          console.log(allData[0].user.country);
+          currentPageId++;
+          await wait(2000);
+          main();
+        } else {
+          console.log(allData);
+        }
+      } else {
+        console.log('no data');
+      }
+    }
+
+    // async wait function
+    async function wait(ms) {
+      return new Promise(resolve => {
+        setTimeout(resolve, ms);
+      });
+    }
+  </script>
+</body>
+</html>
