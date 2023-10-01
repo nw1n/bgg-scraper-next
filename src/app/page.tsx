@@ -7,6 +7,7 @@ const baseBggUrl = 'https://api.geekdo.com/api/collections?'
 const urlExample =
   'https://api.geekdo.com/api/collections?ajax=1&objectid=136955' +
   '&objecttype=thing&oneperuser=1&pageid=3&require_review=true&showcount=100&sort=review_tstamp&status=own'
+const xmlGameUrlBase = 'https://boardgamegeek.com/xmlapi2/thing?id='
 
 const defaultParams = {
   ajax: 1,
@@ -66,6 +67,7 @@ export default function Home() {
   const [isChecked, setIsChecked] = useState(false)
   const [isGreenButtonActive, setIsGreenButtonActive] = useState(false)
   const [lastLogMessage, setLastLogMessage] = useState('')
+  const [gameTitle, setGameTitle] = useState('')
 
   function handleCheckboxChange(event: React.ChangeEvent<HTMLInputElement>) {
     log('filter toggled')
@@ -125,6 +127,7 @@ export default function Home() {
       const respData = await response.json()
       if (respData && respData.items.length > 0) {
         handleGreenButtonBlink()
+        console.log(respData.items[0])
         myDataStore = [...myDataStore, ...respData.items]
         setAllData(myDataStore)
         currentPageNumber = currentPageNumber + 1
@@ -146,6 +149,35 @@ export default function Home() {
     }
   }
 
+  async function fetchXmlDataForGame() {
+    try {
+      const response = await fetch(xmlGameUrlBase + gameIdInputValue)
+      // parse xml data
+      const respData = await response.text()
+      // find usbstring in xml
+      const myRawString =
+        respData.match(
+          /<name type="primary" sortindex="1" value="(.*?)"/,
+        )?.[1] || ''
+      const myString = decodeHtmlEntities(myRawString)
+      log('Setting Game Title to: ' + myString)
+      setGameTitle(myString)
+    } catch (error) {
+      log('Setting Game Title to set game title.')
+      console.error('Error fetching xml data:', error)
+    }
+  }
+
+  function decodeHtmlEntities(html: string) {
+    const parser = new DOMParser()
+    const decodedHtml = parser.parseFromString(html, 'text/html')
+      .documentElement.textContent
+    if (decodedHtml) {
+      return decodedHtml
+    }
+    return ''
+  }
+
   async function fetchAllData() {
     window.location.hash = '#' + gameIdInputValue
     timesFailed = 0
@@ -153,6 +185,8 @@ export default function Home() {
     myDataStore = []
     isFetching = true
     setIsLoadingState(true)
+
+    await fetchXmlDataForGame()
 
     await fetchPage()
   }
@@ -168,6 +202,10 @@ export default function Home() {
       setFilteredData(allData.reverse())
     }
   }, [allData, locationInputValue, isChecked])
+
+  // window.setTimeout(() => {
+  //   fetchXmlDataForGame()
+  // }, 100)
 
   return (
     <div className="container">
@@ -214,6 +252,7 @@ export default function Home() {
                 (timesFailed > 0 ? ' green-button--red' : '')
           }
         ></span>
+        <h4>Game Title: {gameTitle}</h4>
         <ul>
           {filteredData.map((item: LocatedUser) => (
             <li key={item.user.username} style={{ marginTop: '10px' }}>
