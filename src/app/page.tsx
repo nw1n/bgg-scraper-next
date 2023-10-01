@@ -73,6 +73,7 @@ export default function Home() {
   }
 
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const stopButtonRef = useRef<HTMLButtonElement>(null)
 
   function handleLocationInputChange(
     event: React.ChangeEvent<HTMLInputElement>,
@@ -82,6 +83,12 @@ export default function Home() {
 
   function handleGameIdInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     setGameIdInputValue(event.target.value)
+  }
+
+  function handleStopButtonClick() {
+    log('stop button clicked')
+    isFetching = false
+    setIsLoadingState(false)
   }
 
   function handleGreenButtonBlink() {
@@ -99,6 +106,11 @@ export default function Home() {
   }
 
   async function fetchPage() {
+    if (!isFetching) {
+      log('isFetching is false, stopping')
+      setIsLoadingState(false)
+      return
+    }
     if (timesFailed >= 8) {
       log('too many fails, stopping')
       isFetching = false
@@ -185,6 +197,13 @@ export default function Home() {
           disabled={isLoadingState}
         >
           {isLoadingState ? 'Fetching Data...' : 'Fetch Data'}
+        </button>
+        <button
+          ref={stopButtonRef}
+          onClick={handleStopButtonClick}
+          disabled={!isLoadingState}
+        >
+          Stop
         </button>
         <div className="log-window">LOG: {lastLogMessage}</div>
         <span
