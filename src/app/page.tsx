@@ -67,6 +67,7 @@ export default function Home() {
   const [lastLogMessage, setLastLogMessage] = useState('')
 
   function handleCheckboxChange(event: React.ChangeEvent<HTMLInputElement>) {
+    log('filter toggled')
     setIsChecked(event.target.checked)
   }
 
@@ -104,12 +105,12 @@ export default function Home() {
 
   async function fetchPage() {
     if (timesFailed >= 8) {
-      console.log('too many fails, stopping')
+      log('too many fails, stopping')
       setIsLoading(false)
       return
     }
     try {
-      console.log('fetching page: ' + currentPageNumber)
+      log('fetching page: ' + currentPageNumber)
       const response = await fetch(
         buildUrl(gameIdInputValue, currentPageNumber),
       )
@@ -184,7 +185,7 @@ export default function Home() {
         <button ref={buttonRef} onClick={fetchAllData} disabled={isLoading}>
           {isLoading ? 'Fetching Data...' : 'Fetch Data'}
         </button>
-        <div class="log-window">LOG: {lastLogMessage}</div>
+        <div className="log-window">LOG: {lastLogMessage}</div>
         <span
           className={
             isGreenButtonActive
