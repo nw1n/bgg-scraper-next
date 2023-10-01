@@ -71,6 +71,7 @@ export default function Home() {
   }
 
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const stopButtonRef = useRef<HTMLButtonElement>(null)
 
   // useEffect(() => {
   //   // if (buttonRef.current) {
@@ -95,6 +96,11 @@ export default function Home() {
     }, 20)
   }
 
+  function handleStopButtonClick() {
+    log('stop button clicked')
+    setIsLoading(!isLoading)
+  }
+
   function log(logMessage: any) {
     console.log(logMessage)
     if (logMessage && typeof logMessage === 'string') {
@@ -103,13 +109,17 @@ export default function Home() {
   }
 
   async function fetchPage() {
+    if (!isLoading) {
+      log('process is stopped. not loading any more pages')
+      return
+    }
     if (timesFailed >= 8) {
-      console.log('too many fails, stopping')
+      log('too many fails, stopping')
       setIsLoading(false)
       return
     }
     try {
-      console.log('fetching page: ' + currentPageNumber)
+      log('fetching page: ' + currentPageNumber)
       const response = await fetch(
         buildUrl(gameIdInputValue, currentPageNumber),
       )
@@ -142,7 +152,8 @@ export default function Home() {
     timesFailed = 0
     currentPageNumber = 1
     myDataStore = []
-    setIsLoading(true)
+    log('isLoading: ' + isLoading)
+    await wait(3000)
 
     await fetchPage()
   }
@@ -184,7 +195,14 @@ export default function Home() {
         <button ref={buttonRef} onClick={fetchAllData} disabled={isLoading}>
           {isLoading ? 'Fetching Data...' : 'Fetch Data'}
         </button>
-        <div class="log-window">LOG: {lastLogMessage}</div>
+        <button
+          ref={stopButtonRef}
+          onClick={handleStopButtonClick}
+          disabled={!isLoading}
+        >
+          {isLoading ? 'Stop' : 'Stop'}
+        </button>
+        <div className="log-window">LOG: {lastLogMessage}</div>
         <span
           className={
             isGreenButtonActive
