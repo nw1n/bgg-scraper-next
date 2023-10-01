@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/router'
 
 const baseBggUrl = 'https://api.geekdo.com/api/collections?'
 const urlExample =
@@ -12,7 +11,7 @@ const xmlGameUrlBase = 'https://boardgamegeek.com/xmlapi2/thing?id='
 
 const defaultParams = {
   ajax: 1,
-  objectid: '136955',
+  objectid: 136955,
   objecttype: 'thing',
   oneperuser: 1,
   pageid: 3,
@@ -43,7 +42,6 @@ let currentPageNumber = 1
 let timesFailed = 0
 let myDataStore: any = []
 let isFetching = false
-let hashUrl = ''
 
 function buildUrl(gameId, pageNumber) {
   const myQueryParams = Object.assign({}, defaultParams, {
@@ -56,9 +54,9 @@ function buildUrl(gameId, pageNumber) {
 }
 
 export default function Home() {
-  const router = useRouter()
-
-  const defaultGameId = defaultParams.objectid
+  const defaultGameId = window.location.hash
+    ? window.location.hash.replace('#', '')
+    : defaultParams.objectid
 
   const [allData, setAllData] = useState<LocatedUser[]>([])
   // const [currentPageNumber, setCurrentPageNumber] = useState(1)
@@ -194,10 +192,6 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const hash = router.asPath.split('#')[1] // This splits the URL by '#' and gets the second part (the hash)
-    if (hash) {
-      hashUrl = hash
-    }
     if (isChecked) {
       const newFilteredData = allData.filter((item: LocatedUser) => {
         const location = `${item.user.country} ${item.user.city}`
@@ -208,6 +202,10 @@ export default function Home() {
       setFilteredData(allData.reverse())
     }
   }, [allData, locationInputValue, isChecked])
+
+  // window.setTimeout(() => {
+  //   fetchXmlDataForGame()
+  // }, 100)
 
   return (
     <div className="container">
