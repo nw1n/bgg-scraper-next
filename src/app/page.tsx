@@ -40,6 +40,7 @@ async function wait(ms) {
 let currentPageNumber = 1
 let timesFailed = 0
 let myDataStore: any = []
+let isFetching = false
 
 function buildUrl(gameId, pageNumber) {
   const myQueryParams = Object.assign({}, defaultParams, {
@@ -58,7 +59,7 @@ export default function Home() {
 
   const [allData, setAllData] = useState<LocatedUser[]>([])
   // const [currentPageNumber, setCurrentPageNumber] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingState, setIsLoadingState] = useState(false)
   const [locationInputValue, setLocationInputValue] = useState('Switzerland')
   const [gameIdInputValue, setGameIdInputValue] = useState(defaultGameId)
   const [filteredData, setFilteredData] = useState<LocatedUser[]>([])
@@ -72,12 +73,6 @@ export default function Home() {
   }
 
   const buttonRef = useRef<HTMLButtonElement>(null)
-
-  // useEffect(() => {
-  //   // if (buttonRef.current) {
-  //   //   buttonRef.current.click()
-  //   // }
-  // }, [])
 
   function handleLocationInputChange(
     event: React.ChangeEvent<HTMLInputElement>,
@@ -106,7 +101,8 @@ export default function Home() {
   async function fetchPage() {
     if (timesFailed >= 8) {
       log('too many fails, stopping')
-      setIsLoading(false)
+      isFetching = false
+      setIsLoadingState(false)
       return
     }
     try {
@@ -143,7 +139,8 @@ export default function Home() {
     timesFailed = 0
     currentPageNumber = 1
     myDataStore = []
-    setIsLoading(true)
+    isFetching = true
+    setIsLoadingState(true)
 
     await fetchPage()
   }
@@ -182,8 +179,12 @@ export default function Home() {
           onChange={handleGameIdInputChange}
         />
         <p>Click the button to start fetching data</p>
-        <button ref={buttonRef} onClick={fetchAllData} disabled={isLoading}>
-          {isLoading ? 'Fetching Data...' : 'Fetch Data'}
+        <button
+          ref={buttonRef}
+          onClick={fetchAllData}
+          disabled={isLoadingState}
+        >
+          {isLoadingState ? 'Fetching Data...' : 'Fetch Data'}
         </button>
         <div className="log-window">LOG: {lastLogMessage}</div>
         <span
