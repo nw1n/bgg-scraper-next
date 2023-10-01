@@ -64,6 +64,7 @@ export default function Home() {
   const [filteredData, setFilteredData] = useState<LocatedUser[]>([])
   const [isChecked, setIsChecked] = useState(false)
   const [isGreenButtonActive, setIsGreenButtonActive] = useState(false)
+  const [lastLogMessage, setLastLogMessage] = useState('')
 
   function handleCheckboxChange(event: React.ChangeEvent<HTMLInputElement>) {
     setIsChecked(event.target.checked)
@@ -92,6 +93,13 @@ export default function Home() {
     setTimeout(() => {
       setIsGreenButtonActive(false)
     }, 20)
+  }
+
+  function log(logMessage: any) {
+    console.log(logMessage)
+    if (logMessage && typeof logMessage === 'string') {
+      setLastLogMessage(logMessage)
+    }
   }
 
   async function fetchPage() {
@@ -176,6 +184,7 @@ export default function Home() {
         <button ref={buttonRef} onClick={fetchAllData} disabled={isLoading}>
           {isLoading ? 'Fetching Data...' : 'Fetch Data'}
         </button>
+        <div class="log-window">LOG: {lastLogMessage}</div>
         <span
           className={
             isGreenButtonActive

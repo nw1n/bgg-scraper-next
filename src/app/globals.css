@@ -26,3 +26,12 @@
   transition: background-color 0;
   background-color: #44aa44;
 }
+.log-window {
+  height: 26px;
+  font-size: 14px;
+  margin: 5px 0;
+  overflow: hidden;
+  background-color: #000;
+  color: #fff;
+  padding: 5px;
+}
