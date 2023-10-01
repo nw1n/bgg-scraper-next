@@ -11,7 +11,7 @@ const xmlGameUrlBase = 'https://boardgamegeek.com/xmlapi2/thing?id='
 
 const defaultParams = {
   ajax: 1,
-  objectid: 136955,
+  objectid: '136955',
   objecttype: 'thing',
   oneperuser: 1,
   pageid: 3,
@@ -54,9 +54,7 @@ function buildUrl(gameId, pageNumber) {
 }
 
 export default function Home() {
-  const defaultGameId = window.location.hash
-    ? window.location.hash.replace('#', '')
-    : defaultParams.objectid
+  const defaultGameId = defaultParams.objectid
 
   const [allData, setAllData] = useState<LocatedUser[]>([])
   // const [currentPageNumber, setCurrentPageNumber] = useState(1)
@@ -179,7 +177,6 @@ export default function Home() {
   }
 
   async function fetchAllData() {
-    window.location.hash = '#' + gameIdInputValue
     timesFailed = 0
     currentPageNumber = 1
     myDataStore = []
@@ -202,10 +199,6 @@ export default function Home() {
       setFilteredData(allData.reverse())
     }
   }, [allData, locationInputValue, isChecked])
-
-  // window.setTimeout(() => {
-  //   fetchXmlDataForGame()
-  // }, 100)
 
   return (
     <div className="container">
