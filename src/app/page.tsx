@@ -183,15 +183,19 @@ export default function Home() {
     isFetching = true
     setIsLoadingState(true)
 
-    await fetchXmlDataForGame()
-
-    await fetchPage()
+    // await fetchXmlDataForGame()
+    // await fetchPage()
+    const myNewData = await fetch('http://localhost:5000/api/ownerships')
+    const myNewDataJson = await myNewData.json()
+    myDataStore = myNewDataJson
+    setAllData(myDataStore)
+    console.log(myDataStore)
   }
 
   useEffect(() => {
     if (isChecked) {
-      const newFilteredData = allData.filter((item: LocatedUser) => {
-        const location = `${item.user.country} ${item.user.city}`
+      const newFilteredData = allData.filter((item: any) => {
+        const location = `${item.country} ${item.city}`
         return location.toLowerCase().includes(locationInputValue.toLowerCase())
       })
       setFilteredData(newFilteredData.reverse())
@@ -248,15 +252,15 @@ export default function Home() {
         <h4>Game Title: {gameTitle}</h4>
         <ul>
           {filteredData.map((item: LocatedUser) => (
-            <li key={item.user.username} style={{ marginTop: '10px' }}>
+            <li key={item._id} style={{ marginTop: '10px' }}>
               <div>
-                {item.user.country} --- {item.user.city}{' '}
+                {item.country} --- {item.city}{' '}
               </div>
               <a
                 target="_blank"
-                href={`https://boardgamegeek.com/user/${item.user.username}`}
+                href={`https://boardgamegeek.com/user/${item.userId}`}
               >
-                {item.user.username}
+                {item.ownerId}
               </a>
             </li>
           ))}
