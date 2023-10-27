@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
 
 const baseBggUrl = 'https://api.geekdo.com/api/collections?'
 const urlExample =
@@ -204,6 +205,7 @@ export default function Home() {
     <div className="container">
       <main>
         <h1>BGG Game owner Scraper</h1>
+        <Button>Click me</Button>
         <p>Enter the Location to filter</p>
         <input
           type="checkbox"
